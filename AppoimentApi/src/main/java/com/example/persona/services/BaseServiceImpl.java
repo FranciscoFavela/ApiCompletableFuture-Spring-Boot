@@ -21,16 +21,17 @@ public abstract class BaseServiceImpl<E extends Base, ID extends Serializable> i
 
     //Competable future testing 3 request
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseServiceImpl.class);
+
     @Async
     public CompletableFuture<List<E>> getAlll() {
 
-        LOGGER.info("Request to get a list of cars");
+        LOGGER.info("Request to get a list");
 
-        final List<E> cars = baseRepository.findAll();
-        return CompletableFuture.completedFuture(cars);
+        final List<E> entities = baseRepository.findAll();
+        return CompletableFuture.completedFuture(entities);
         }
 
-    @Async
+
     @Override
     @Transactional
     public List<E> findAll() throws Exception {

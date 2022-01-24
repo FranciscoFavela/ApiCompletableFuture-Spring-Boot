@@ -22,13 +22,22 @@ public class AppoimentController extends BaseControllerImpl<Appoiment, Appoiment
     @GetMapping("/hilo")
     public @ResponseBody ResponseEntity getAllCars() {
         try {
-            CompletableFuture<List<Appoiment>> cars1=servicio.getAlll();
-            CompletableFuture<List<Appoiment>> cars2=servicio.getAlll();
-            CompletableFuture<List<Appoiment>> cars3=servicio.getAlll();
-            CompletableFuture.allOf(cars1, cars2, cars3).join();
-            return ResponseEntity.status(HttpStatus.OK).build();
+            //testing of 9 request
+            CompletableFuture<List<Appoiment>> entitie1=servicio.getAlll();
+            CompletableFuture<List<Appoiment>> entitie2=servicio.getAlll();
+            CompletableFuture<List<Appoiment>> entitie3=servicio.getAlll();
+            CompletableFuture<List<Appoiment>> entitie4=servicio.getAlll();
+            CompletableFuture<List<Appoiment>> entitie5=servicio.getAlll();
+            CompletableFuture<List<Appoiment>> entitie6=servicio.getAlll();
+            CompletableFuture<List<Appoiment>> entitie7=servicio.getAlll();
+            CompletableFuture<List<Appoiment>> entitie8=servicio.getAlll();
+            CompletableFuture<List<Appoiment>> entitie9=servicio.getAlll();
+            CompletableFuture.allOf(entitie1, entitie2, entitie3,entitie3,entitie4,entitie5,entitie6,entitie7,entitie8,entitie9).join();
+           // return ResponseEntity.status(HttpStatus.OK).build();
+            return ResponseEntity.status(HttpStatus.OK).body(servicio.findAll());
         } catch(final Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 }
