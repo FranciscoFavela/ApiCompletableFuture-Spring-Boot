@@ -6,6 +6,9 @@ import com.example.persona.repositories.BaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
 
 @Service
 public class AppoimentServiceImpl extends BaseServiceImpl<Appoiment, Long> implements AppoimentService {
@@ -18,4 +21,8 @@ public class AppoimentServiceImpl extends BaseServiceImpl<Appoiment, Long> imple
     }
 
 
+    @Override
+    public CompletableFuture<List<Appoiment>> pruebaGetall() {
+        return CompletableFuture.completedFuture(appoimentRepository.findAll());
+    }
 }

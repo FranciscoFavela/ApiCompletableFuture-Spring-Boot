@@ -15,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
 public abstract class BaseServiceImpl<E extends Base, ID extends Serializable> implements BaseService<E, ID> {
     protected BaseRepository<E, ID> baseRepository;
 
-    public BaseServiceImpl(BaseRepository<E, ID> baseRepository){
+    public BaseServiceImpl(BaseRepository<E, ID> baseRepository) {
         this.baseRepository = baseRepository;
     }
 
@@ -23,27 +23,49 @@ public abstract class BaseServiceImpl<E extends Base, ID extends Serializable> i
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseServiceImpl.class);
 
     @Async
+    @Transactional
     public CompletableFuture<List<E>> getAlll() {
 
         LOGGER.info("Request to get a list");
 
-        final List<E> entities = baseRepository.findAll();
-        return CompletableFuture.completedFuture(entities);
-        }
+        return CompletableFuture.completedFuture(baseRepository.findAll());
+    }
 
-
-    @Override
+    @Async
     @Transactional
-    public List<E> findAll() throws Exception {
-        try{
-            System.out.println("Current Thread"+Thread.currentThread().getName());
-            List<E> entities = baseRepository.findAll();
-            return entities;
-        } catch (Exception e){
+    public CompletableFuture<Optional<E>> findByIdAsync(ID id) throws Exception {
+        try {
+            System.out.println("Current Thread " + Thread.currentThread().getName());
+            LOGGER.info("Request to get a OneByID");
+            return CompletableFuture.completedFuture(baseRepository.findById(id));
+        } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
     }
 
+    @Async
+    @Override
+    @Transactional
+    public CompletableFuture<List<E>> pruebaGetall() {
+        System.out.println("Current Thread" + Thread.currentThread().getName());
+        LOGGER.info("Request to get a list");
+        return CompletableFuture.completedFuture(baseRepository.findAll());
+    }
+
+    /*
+        @Override
+        @Transactional
+        public List<E> findAll() throws Exception {
+            try{
+                System.out.println("Current Thread"+Thread.currentThread().getName());
+                List<E> entities = baseRepository.findAll();
+                return entities;
+            } catch (Exception e){
+                throw new Exception(e.getMessage());
+            }
+        }
+    */
+    /*
     @Override
     @Transactional
     public E findById(ID id) throws Exception {
@@ -65,8 +87,7 @@ public abstract class BaseServiceImpl<E extends Base, ID extends Serializable> i
             throw new Exception(e.getMessage());
         }
     }
-
-    @Override
+     @Override
     @Transactional
     public E update(ID id, E entity) throws Exception {
         try{
@@ -78,18 +99,42 @@ public abstract class BaseServiceImpl<E extends Base, ID extends Serializable> i
             throw new Exception(e.getMessage());
         }
     }
+*/
+    @Async
+    @Transactional
+    @Override
+    public CompletableFuture<E> update(ID id, E entity) throws Exception {
+        System.out.println("Current Thread" + Thread.currentThread().getName());
+        LOGGER.info("Request to update");
+        Optional<E> entityOptional = baseRepository.findById(id);
+        E entityUpdate = entityOptional.get();
+        return CompletableFuture.completedFuture(baseRepository.save(entity));
+    }
 
+    @Async
+    @Transactional
+    @Override
+    public CompletableFuture<E> save(E entity) throws Exception {
+        System.out.println("Current Thread" + Thread.currentThread().getName());
+        LOGGER.info("Request to save");
+        return CompletableFuture.completedFuture(baseRepository.save(entity));
+    }
+
+
+    @Async
     @Override
     @Transactional
-    public boolean delete(ID id) throws Exception {
-        try{
-            if (baseRepository.existsById(id)){
+    public CompletableFuture<Boolean> delete(ID id) throws Exception {
+        try {
+            System.out.println("Current Thread" + Thread.currentThread().getName());
+            LOGGER.info("Request to Delete");
+            if (baseRepository.existsById(id)) {
                 baseRepository.deleteById(id);
-                return true;
+                return CompletableFuture.completedFuture(true);
             } else {
                 throw new Exception();
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
     }

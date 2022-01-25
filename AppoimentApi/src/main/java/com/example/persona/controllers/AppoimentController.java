@@ -19,6 +19,7 @@ public class AppoimentController extends BaseControllerImpl<Appoiment, Appoiment
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseControllerImpl.class);
 
     //Competable future testing 3 request
+    /*
     @GetMapping("/hilo")
     public @ResponseBody ResponseEntity getAllCars() {
         try {
@@ -34,10 +35,15 @@ public class AppoimentController extends BaseControllerImpl<Appoiment, Appoiment
             CompletableFuture<List<Appoiment>> entitie9=servicio.getAlll();
             CompletableFuture.allOf(entitie1, entitie2, entitie3,entitie3,entitie4,entitie5,entitie6,entitie7,entitie8,entitie9).join();
            // return ResponseEntity.status(HttpStatus.OK).build();
-            return ResponseEntity.status(HttpStatus.OK).body(servicio.findAll());
+            return ResponseEntity.status(HttpStatus.OK).body(servicio.getAlll());
         } catch(final Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+    */
+    @GetMapping("/testget")
+    public CompletableFuture<ResponseEntity> getTestAll(){
+        return servicio.pruebaGetall().thenApply(ResponseEntity::ok);
     }
 
 }
