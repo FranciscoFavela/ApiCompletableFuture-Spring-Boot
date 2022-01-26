@@ -1,121 +1,153 @@
 package com.example.persona;
 
-import com.example.persona.controllers.AppoimentController;
-import com.example.persona.controllers.BaseController;
-import com.example.persona.controllers.ClientController;
-import com.example.persona.entities.Appoiment;
-import com.example.persona.entities.Base;
-import com.example.persona.entities.Client;
-import com.example.persona.repositories.AppoimentRepository;
-import com.example.persona.repositories.BaseRepository;
-import com.example.persona.repositories.ClientRepository;
-import com.example.persona.services.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
-import static net.bytebuddy.matcher.ElementMatchers.is;
-import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.example.persona.controllers.ClientController;
+import com.example.persona.entities.Client;
+import com.example.persona.services.ClientServiceImpl;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Description;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-@ExtendWith(MockitoExtension.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@SpringBootTest
+@WebMvcTest(ClientController.class)
 class PersonaApplicationTests {
-/*
+    @Autowired
     private MockMvc mockMvc;
 
-    ObjectMapper objectMapper = new ObjectMapper();
-    ObjectWriter objectWriter = objectMapper.writer();
-
-    @InjectMocks
-    private ClientController clientController;
-
-    @Mock
-    private ClientService clientService;
-
-    @Autowired
-    private ClientServiceImpl clientServiceImpl;;
-
     @MockBean
-    private ClientRepository clientRepository;
-
-    @BeforeAll
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
-        this.mockMvc = MockMvcBuilders.standaloneSetup(clientController).build();
-    }
-    Client c1 = new Client("NAME","LASTNAME",1,"DNI","MAIL",4333);
-    Appoiment c2 = new Appoiment("reason",1,1,1,c1);
-    List<Appoiment> record = new ArrayList(Arrays.asList(c2));
+    private ClientServiceImpl usrSrv;
+    Client mockClient = new Client( "Zamira", "Fonseca", 965, "sda5224", "Zamira@gmail.com", 43310033);
+    Client mockClient2  = new Client("Zamira", "Fonseca2", 232, "s1d2d311", "Zamira2@gmail.com", 43310443);
 
     @Test
-    public void getAllRecords_success() throws Exception {
-        List<Client> records = new ArrayList<>(Arrays.asList(c1));
+    @Description("ASYNC one get Client ")
+    public void getUserTest() throws Exception {
+        //given
+        given(usrSrv.findByIdAsync(Mockito.anyLong()))
+                .willReturn(
+                        CompletableFuture.<Optional<Client>>completedFuture(Optional.ofNullable(mockClient))
+                );
+        //when
 
-        Mockito.when(clientRepository.findAll()).thenReturn(records);
+        ObjectMapper mapr = new ObjectMapper();
 
-        mockMvc.perform(MockMvcRequestBuilders
-                        .get("http://localhost:9090/api/v1/clients")
-                        .contentType(MediaType.APPLICATION_JSON))
+        String body = mapr.writeValueAsString(mockClient);
+
+        String expected = "";
+        MvcResult response =
+                this.mockMvc.perform(get("http://localhost:9090/api/v1/clients/16").accept(MediaType.APPLICATION_JSON) )
+                        .andExpect(request().asyncStarted())
+                        .andExpect(status().is2xxSuccessful())
+                        .andReturn();
+
+        this.mockMvc.perform(asyncDispatch(response))
+                .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect((ResultMatcher) jsonPath("$", hasSize(1)))
-                .andExpect((ResultMatcher) jsonPath("$[2].name", is("NAME")));
-    }
-
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(body))
+        ;
+}
     @Test
-    public void GetOneByIDTest() {
-        int id=1;
-        Mockito.when(clientRepository.findById(Long.valueOf(id))).thenReturn(Optional.of((c1)));
-        assertEquals(Optional.of(c1),clientRepository.findById(Long.valueOf(id)));
-    }
+    @Description("ASYNC save Client ")
+    public void saveUserTest() throws Exception {
+        //given
+        given(usrSrv.save(Mockito.any()))
+                .willReturn(
+                        CompletableFuture.completedFuture(mockClient)
+                );
+        //when
 
-    @Test
-    public void PutMappingSucess() throws Exception {
+        ObjectMapper mapr = new ObjectMapper();
 
-        Mockito.when(clientService.update(null,c1)).thenReturn(c1);
+        String body = mapr.writeValueAsString(mockClient);
 
-        String content = objectWriter.writeValueAsString(c1);
+        String expected = "";
+        MvcResult response =
+                this.mockMvc.perform(
+                                post("http://localhost:9090/api/v1/clients/")
+                                        .accept(MediaType.APPLICATION_JSON)
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(body)
+                        )
 
-        System.out.println(content);
+                        .andExpect(request().asyncStarted())
+                        .andExpect(status().is2xxSuccessful())
+                        .andReturn();
 
-        mockMvc.perform(MockMvcRequestBuilders
-                        .put("/api/v1/clients/")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(content))
+        this.mockMvc.perform(asyncDispatch(response))
+                .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect((ResultMatcher) jsonPath("$.name", is(c1.getName())));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(body,false ))
+        ;
+
+
     }
-    */
+    @Test
+    @Description("All Clients")
+    public void allUserTest() throws Exception {
+
+        List<Client> all = new ArrayList<Client>();
+        all.add(mockClient);
+        all.add(mockClient2);
+
+        given(usrSrv.pruebaGetall())
+                .willReturn(
+                        CompletableFuture.completedFuture(all)
+                );
+        //when
+
+
+        String expected = "";
+
+        this.mockMvc.perform(get("http://localhost:9090/api/v1/clients/").accept(MediaType.APPLICATION_JSON) )
+                .andDo(print())
+                .andExpect(content().string(expected))
+                .andExpect(status().is2xxSuccessful())
+        ;
+        //then
+
     }
+
+    @Test
+    @Description("delete a Client")
+    public void delUserTest() throws Exception {
+
+
+        given(usrSrv.delete(Mockito.anyLong()))
+                .willReturn(
+                        CompletableFuture.completedFuture(true)
+                );
+        //when
+
+        String expected = "";
+        this.mockMvc.perform(delete("http://localhost:9090/api/v1/clients/52") )
+                .andDo(print())
+                .andExpect(content().string(expected))
+                .andExpect(status().is2xxSuccessful())
+        ;
+        //then
+
+        }
+
+}
