@@ -22,7 +22,7 @@ public abstract class BaseServiceImpl<E extends Base, ID extends Serializable> i
     //Competable future testing 3 request
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseServiceImpl.class);
 
-    @Async
+    @Async("taskExecutor")
     @Transactional
     public CompletableFuture<List<E>> getAlll() {
 
@@ -31,7 +31,7 @@ public abstract class BaseServiceImpl<E extends Base, ID extends Serializable> i
         return CompletableFuture.completedFuture(baseRepository.findAll());
     }
 
-    @Async
+    @Async("taskExecutor")
     @Transactional
     public CompletableFuture<Optional<E>> findByIdAsync(ID id) throws Exception {
         try {
@@ -43,7 +43,7 @@ public abstract class BaseServiceImpl<E extends Base, ID extends Serializable> i
         }
     }
 
-    @Async
+    @Async("taskExecutor")
     @Override
     @Transactional
     public CompletableFuture<List<E>> pruebaGetall() {
@@ -100,7 +100,7 @@ public abstract class BaseServiceImpl<E extends Base, ID extends Serializable> i
         }
     }
 */
-    @Async
+    @Async("taskExecutor")
     @Transactional
     @Override
     public CompletableFuture<E> update(ID id, E entity) throws Exception {
@@ -111,7 +111,7 @@ public abstract class BaseServiceImpl<E extends Base, ID extends Serializable> i
         return CompletableFuture.completedFuture(baseRepository.save(entity));
     }
 
-    @Async
+    @Async("taskExecutor")
     @Transactional
     @Override
     public CompletableFuture<E> save(E entity) throws Exception {
@@ -121,7 +121,7 @@ public abstract class BaseServiceImpl<E extends Base, ID extends Serializable> i
     }
 
 
-    @Async
+    @Async("taskExecutor")
     @Override
     @Transactional
     public CompletableFuture<Boolean> delete(ID id) throws Exception {
@@ -138,4 +138,5 @@ public abstract class BaseServiceImpl<E extends Base, ID extends Serializable> i
             throw new Exception(e.getMessage());
         }
     }
+
 }

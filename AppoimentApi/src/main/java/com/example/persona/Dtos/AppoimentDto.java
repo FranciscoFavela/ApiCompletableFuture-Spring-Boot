@@ -1,13 +1,25 @@
 package com.example.persona.Dtos;
 
-import lombok.Data;
+import lombok.*;
 
 import java.io.Serializable;
 
-@Data
+
+
+@Getter
+@Setter
 public class AppoimentDto implements Serializable {
-    private final String appoimentreason;
-    private final int appoimentroom;
-    private final int clientid;
-    private final int date;
+    private  String appoimentreason;
+    private  int appoimentroom;
+    private  int clientid;
+    private  int date;
+
+    public AppoimentDto(String appoimentreason, int appoimentroom, int clientid, int date) {
+        this.appoimentreason = appoimentreason;
+        this.appoimentroom = appoimentroom;
+        this.clientid = clientid;
+        this.date = date;
+    }
+    public AppoimentDto() {
+    }
 }

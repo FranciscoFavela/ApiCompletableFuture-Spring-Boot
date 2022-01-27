@@ -41,9 +41,15 @@ public class AppoimentController extends BaseControllerImpl<Appoiment, Appoiment
         }
     }
     */
-    @GetMapping("/testget")
-    public CompletableFuture<ResponseEntity> getTestAll(){
-        return servicio.pruebaGetall().thenApply(ResponseEntity::ok);
+    //Pruebas dtos
+    @GetMapping("/testgetdto")
+    public CompletableFuture<ResponseEntity> getTestAllDto(){
+        return servicio.getAllDTO().thenApply(ResponseEntity::ok);
+    }
+
+    @GetMapping("/testgetdto/{id}")
+    public CompletableFuture<ResponseEntity> getOneAsyncDto(@PathVariable Long id) throws Exception {
+        return servicio.getOneAppoimentDTO(id).thenApply(ResponseEntity::ok);
     }
 
 }
